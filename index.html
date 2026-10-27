@@ -63,6 +63,13 @@ label{font:500 13px var(--mono);color:var(--mut);display:block}
 .vr:hover:not(:disabled){border-color:var(--ac)}
 .vr.on{border-color:var(--ac);background:#0f1a16}.vr:disabled:not(.on){opacity:.4;cursor:not-allowed}.vr:disabled:not(.on) b::after{content:' 🔒';color:var(--wn)}
 .vsel{font:12.5px var(--mono);color:var(--mut);margin:0 0 8px}.vsel b{color:var(--ac)}
+.qr{display:flex;align-items:center;gap:16px;background:var(--p);border:1px solid var(--ln);border-radius:12px;padding:14px;margin:14px 0}
+.qr img{width:128px;height:128px;background:#fff;padding:8px;border-radius:8px;flex:none;object-fit:contain}
+.qr p{margin:0}.qr .m{font-size:13.5px}
+.qr img{cursor:zoom-in}
+#qrbig{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.92);display:grid;place-items:center;align-content:center;gap:14px;cursor:zoom-out;padding:12px}
+#qrbig img{width:min(92vw,92vh,900px);height:min(92vw,92vh,900px);background:#fff;padding:3vmin;border-radius:12px;object-fit:contain}
+#qrbig span{font:13px var(--mono);color:var(--mut)}
 @media(max-width:560px){.mem{grid-template-columns:repeat(3,1fr)}h1{font-size:23px}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
 </style></head><body><main id="app"></main>
@@ -73,6 +80,8 @@ document.addEventListener('keydown',ev=>{const c=ev.code;
  if(c==='F12'||((ev.ctrlKey||ev.metaKey)&&ev.shiftKey&&(c==='KeyI'||c==='KeyJ'||c==='KeyC'))||((ev.ctrlKey||ev.metaKey)&&c==='KeyU')||(ev.metaKey&&ev.altKey&&(c==='KeyI'||c==='KeyJ'||c==='KeyC'||c==='KeyU'))){ev.preventDefault();ev.stopPropagation()}},true);
 
 const URL_="https://script.google.com/macros/s/AKfycbxLJ81_48AEYmHHl5wj1qOMZXCc4C2cR9TyTXUNJ9mYqcPIiMkUvPBq29FDdrOI2v13/exec";
+/* QR-сурет: файл атын (мысалы "qr.png", index.html-мен бір бума) немесе толық URL жазыңыз. Бос қалдырсаңыз QR көрсетілмейді */
+const QR_IMG="qr.png";
 const TPL='<html>\n<head><title></title></head>\n<body>\n\n</body>\n</html>';
 const L=[
 {n:34,t:"HTML-дағы мәтін және тізімдер",
@@ -148,8 +157,11 @@ L.forEach(l=>{l.vs=[{n:"Негізгі",task:l.task,chk:l.chk},...VS[l.n]]});
 const getV=n=>ls.get('h_var',{})[n];
 const setV=(n,v)=>{const m=ls.get('h_var',{});m[n]=v;ls.set('h_var',m)};
 
+function bigQR(){const o=document.createElement('div');o.id='qrbig';o.innerHTML=`<img src="${e(QR_IMG)}" alt="QR-код"><span>жабу үшін кез келген жерге бас · Esc</span>`;
+ const c=()=>{o.remove();document.removeEventListener('keydown',k)},k=ev=>{if(ev.key==='Escape')c()};
+ o.onclick=c;document.addEventListener('keydown',k);document.body.appendChild(o)}
 function menu(){const dn=L.filter(l=>(getLock(l.n)||{}).sent).length;
- $('#app').innerHTML=`<div class="lab">// html · web-бет жасау</div><h1>HTML <span class="ac">&lt;/&gt;</span> Web-бет жасау</h1><p class="m">Әр сабақ: қайталау ойыны → лекция → тапсырма → рефлексия.</p><div class="prog-top"><i style="width:${dn/L.length*100}%"></i></div>${L.map((l,i)=>{const s=(getLock(l.n)||{}).sent;return `<button class="it ${s?'dn':''}" onclick="openL(${i})"><span class="no">${l.n}</span><span>${e(l.t)}</span><span class="st">${s?'✓ жіберілді':'ашу →'}</span></button>`}).join('')}`}
+ $('#app').innerHTML=`<div class="lab">// html · web-бет жасау</div><h1>HTML <span class="ac">&lt;/&gt;</span> Web-бет жасау</h1><p class="m">Әр сабақ: қайталау ойыны → лекция → тапсырма → рефлексия.</p>${QR_IMG?`<div class="qr"><img src="${e(QR_IMG)}" alt="QR-код" onerror="this.parentNode.remove()" onclick="bigQR()" title="Үлкейту"><p><b>Телефонмен сканерле</b><br><span class="m">QR-кодты камерамен сканерлесең, осы сайт ашылады. Үлкейту үшін QR-ға бас.</span></p></div>`:''}<div class="prog-top"><i style="width:${dn/L.length*100}%"></i></div>${L.map((l,i)=>{const s=(getLock(l.n)||{}).sent;return `<button class="it ${s?'dn':''}" onclick="openL(${i})"><span class="no">${l.n}</span><span>${e(l.t)}</span><span class="st">${s?'✓ жіберілді':'ашу →'}</span></button>`}).join('')}`}
 function openL(i){const l=L[i],lk=getLock(l.n);
  $('#app').innerHTML=`<button class="btn" onclick="menu()">← Мәзір</button><div class="lab" style="margin-top:16px">// сабақ ${l.n}</div><h2>${e(l.t)}</h2><div id="s1"></div><div id="s2"></div><div id="s3"></div><div id="s4"></div>`;
  if(lk)task(l,i,lk);else warm(l,i)}
